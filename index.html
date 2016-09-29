@@ -32,8 +32,8 @@
     .groupBy([round], mixpanel.reducer.count())
     .map(function(e) { 
       return {
-        longitude: e.key[1], 
-        latitude: e.key[0], 
+        lng: e.key[1], 
+        lat: e.key[0], 
         count: e.value,
       } 
     })
