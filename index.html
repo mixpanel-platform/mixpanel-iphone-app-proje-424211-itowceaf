@@ -73,25 +73,21 @@ var cfg = {
 
 var heatmapLayer = new HeatmapOverlay(cfg);
 
-  var testData = {
-    max: 8,
-    data: [{lat: 24.6408, lng:46.7728, count: 3},{lat: 50.75, lng:-1.55, count: 1}]
-  };
+ 
   var map = new L.Map('map-canvas', {
     center: new L.LatLng(25.6586, -80.3568),
     zoom: 4,
     layers: [baseLayer, heatmapLayer]
   });
-  heatmapLayer.setData(testData)
   var query = $('#query').html()
-  // MP.api.jql(query).done(function(data){
-  //   debugger
-  //   var max = 0
-  //   _.each(data,function(val){
-  //     if ( val.count > max ) max = val.count
-  //   })
-  //   heatmapLayer.setData({max: max, data:data})
-  // })
+  MP.api.jql(query).done(function(data){
+    debugger
+    var max = 0
+    _.each(data,function(val){
+      if ( val.count > max ) max = val.count
+    })
+    heatmapLayer.setData({max: max, data:data})
+  })
 
 
 </script>
