@@ -29,7 +29,88 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
     
-    <script>/*
+   
+
+</head>
+<body>
+<!-- Chart code -->
+<script id="query">
+  function round(event){
+    return  [Number(event.properties.userLatitude).toFixed(), Number(event.properties.userLongitude).toFixed()]
+  }
+  
+  function main() {
+    return Events({
+      from_date: '2016-09-20',
+      to_date:   '2016-09-25',
+      event_selectors: [{event: "purchase"}]
+    })
+    .filter(e => e.properties.userLatitude && e.properties.userLongitude)
+    .groupBy([round], mixpanel.reducer.count())
+    .map(function(e) { 
+      return {
+        longitude: e.key[1], 
+        latitude: e.key[0], 
+        count: e.value,
+      } 
+    })
+  }
+</script>
+<script>
+
+var baseLayer = L.tileLayer(
+  'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution: '...',
+    maxZoom: 18
+  }
+);
+
+var cfg = {
+  // radius should be small ONLY if scaleRadius is true (or small radius is intended)
+  // if scaleRadius is false it will be the constant radius used in pixels
+  "radius": 2,
+  "maxOpacity": .8, 
+  // scales the radius based on map zoom
+  "scaleRadius": true, 
+  // if set to false the heatmap uses the global maximum for colorization
+  // if activated: uses the data maximum within the current map boundaries 
+  //   (there will always be a red spot with useLocalExtremas true)
+  "useLocalExtrema": true,
+  // which field name in your data represents the latitude - default "lat"
+  latField: 'lat',
+  // which field name in your data represents the longitude - default "lng"
+  lngField: 'lng',
+  // which field name in your data represents the data value - default "value"
+  valueField: 'count'
+};
+
+
+var heatmapLayer = new HeatmapOverlay(cfg);
+
+  var map = new L.Map('map-canvas', {
+    center: new L.LatLng(25.6586, -80.3568),
+    zoom: 4,
+    layers: [baseLayer, heatmapLayer]
+  });
+  var query = $('#query').html()
+  MP.api.jql(query).done(function(data){
+    debugger
+    var max = 0
+    _.each(data,function(val){
+      if ( val.count > max ) max = val.count
+    })
+    heatmapLayer.setData({max: max, data:data})
+  })
+
+
+</script>
+
+<!-- HTML -->
+ <div class="heatmap" id="map-canvas">
+
+  </div>
+      
+  <script>/*
    * heatmap.js v2.0.5 | JavaScript Heatmap Library
    *
    * Copyright 2008-2016 Patrick Wied <heatmapjs@patrick-wied.at> - All rights reserved.
@@ -285,134 +366,4 @@
     return HeatmapOverlay;
   });
   </script>
-
-</head>
-<body>
-<!-- Chart code -->
-<script id="query">
-  function round(event){
-    return  [Number(event.properties.userLatitude).toFixed(), Number(event.properties.userLongitude).toFixed()]
-  }
-  
-  function main() {
-    return Events({
-      from_date: '2016-09-20',
-      to_date:   '2016-09-25',
-      event_selectors: [{event: "purchase"}]
-    })
-    .filter(e => e.properties.userLatitude && e.properties.userLongitude)
-    .groupBy([round], mixpanel.reducer.count())
-    .map(function(e) { 
-      return {
-        longitude: e.key[1], 
-        latitude: e.key[0], 
-        count: e.value,
-      } 
-    })
-  }
-</script>
-<script>
-// /**
-// * This example uses pulsating circles CSS by Kevin Urrutia
-// * http://kevinurrutia.tumblr.com/post/16411271583/creating-a-css3-pulsating-circle
-// */
-
-
-// var map = AmCharts.makeChart( "chartdiv", {
-//   "type": "map",
-//   "theme": "light",  
-//   "projection": "miller",
-//   "imagesSettings": {
-//     "rollOverColor": "#089282",
-//     "rollOverScale": 3,
-//     "selectedScale": 3,
-//     "selectedColor": "#089282",
-//     "color": "#13564e"
-//   },
-
-//   "areasSettings": {
-//     "unlistedAreasColor": "#15A892"
-//   },
-
-//   "dataProvider": {
-//     "map": "worldLow",
-//   }
-// } );
-
-// // add events to recalculate map position when the map is moved or zoomed
-// map.addListener( "init", updateCustomMarkers );
-
-// // this function will take current images on the map and create HTML elements for them
-// function updateCustomMarkers( event ) {
-//   // get map object
-//   var map = event.chart;
-//   // go through all of the images
-  
-  /*
-    {
-      "zoomLevel": 5,
-      "scale": 0.5,
-      "title": "Brussels",
-      "latitude": 50.8371,
-      "longitude": 4.3676
-    }
-  */
-  
-  // don't forget to include leaflet-heatmap.js
-// var testData = {
-//   max: 8,
-//   data: [{lat: 24.6408, lng:46.7728, count: 3},{lat: 50.75, lng:-1.55, count: 1}, ...]
-// };
-
-var baseLayer = L.tileLayer(
-  'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution: '...',
-    maxZoom: 18
-  }
-);
-
-var cfg = {
-  // radius should be small ONLY if scaleRadius is true (or small radius is intended)
-  // if scaleRadius is false it will be the constant radius used in pixels
-  "radius": 2,
-  "maxOpacity": .8, 
-  // scales the radius based on map zoom
-  "scaleRadius": true, 
-  // if set to false the heatmap uses the global maximum for colorization
-  // if activated: uses the data maximum within the current map boundaries 
-  //   (there will always be a red spot with useLocalExtremas true)
-  "useLocalExtrema": true,
-  // which field name in your data represents the latitude - default "lat"
-  latField: 'lat',
-  // which field name in your data represents the longitude - default "lng"
-  lngField: 'lng',
-  // which field name in your data represents the data value - default "value"
-  valueField: 'count'
-};
-
-
-var heatmapLayer = new HeatmapOverlay(cfg);
-
-  var map = new L.Map('map-canvas', {
-    center: new L.LatLng(25.6586, -80.3568),
-    zoom: 4,
-    layers: [baseLayer, heatmapLayer]
-  });
-  var query = $('#query').html()
-  MP.api.jql(query).done(function(data){
-    debugger
-    var max = 0
-    _.each(data,function(val){
-      if ( val.count > max ) max = val.count
-    })
-    heatmapLayer.setData({max: max, data:data})
-  })
-
-
-</script>
-
-<!-- HTML -->
- <div class="heatmap" id="map-canvas">
-
-      </div>
 </body>
