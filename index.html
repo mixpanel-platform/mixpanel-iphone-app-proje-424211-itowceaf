@@ -71,7 +71,11 @@ var heatmapLayer = new HeatmapOverlay(cfg);
     layers: [baseLayer, heatmapLayer]
   });
   var query = $('#query').html()
-  MP.api.jql(query).done(function(data){
+  var params = {
+      from: '2016-10-02',
+      to: '2016-10-02'
+    }
+  MP.api.jql(query, params).done(function(data){
     debugger
     var max = 0
     _.each(data,function(val){
