@@ -29,7 +29,7 @@
     return Events({
       from_date: '2016-09-20',
       to_date:   '2016-09-25',
-      event_selectors: [{event: "screenViewed", selector: '(properties["sessionInStore"] == "true")'}]
+      event_selectors: [{event: "screenViewed", selector: '(properties["sessionInStore"] == "true")'}, {event: "productView", selector: '(properties["sessionInStore"] == "true")'}]
     })
     .filter(e => e.properties.userLatitude && e.properties.userLongitude)
     .groupBy([round], mixpanel.reducer.count())
